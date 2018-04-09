@@ -17,6 +17,13 @@ return [
 	'tool_num_not_enough' => 'The tool not enough!',
 	'tool_anti_theft_used' => 'Use the tool to anti-theft!',
 	'tool_repellent_used' => 'Use the tool to repellent!',
+	'tool_ripener_used' => 'Use the tool to ripening!',
+	'tool_fertilizer_used' => 'Use the tool to fertilizer!',
+	
+	'activate_error' => 'Activation failure or activation code has been used!',
+	'package_error' => 'The activation failure or the gift packet has been used!',
+
+	'tree_on_bug' => 'Fruit tree beetle!',
 
 	'not_has_worm' => 'Fruit trees do not need a bug!',
 	'not_has_drug' => 'Fruit trees do not need insect pests!',

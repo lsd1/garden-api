@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Repositories\User\UserRepository as User;
 use App\Repositories\User\UserTreeRepository as UserTree;
 use App\Repositories\User\UserCountRepository as UserCount;
+use App\Repositories\User\UserProfileRepository as UserProfile;
 use App\Repositories\User\UserToolCountRepository as UserToolCount;
 
 class ActionController extends Controller
@@ -171,7 +172,13 @@ class ActionController extends Controller
 		switch($toolId)
 		{
 			case 1:
-				event(new \App\Events\User\FertEvent());
+				try {
+					event(new \App\Events\User\FertEvent());
+
+					event(new \App\Events\User\BugEvent());
+				} catch (\Exception $e) {
+
+				}
 				break;
 			case 2:
 				try {
@@ -205,6 +212,44 @@ class ActionController extends Controller
 		}
 		
 
+		return ['code' => 0, 'msg' => trans('user.request_success'), 'lang' => $lang, 'token' => $token, 'datetime' => date('Y-m-d H:i:s')];
+
+	}
+
+	public function putActivate(UserProfile $userProfile) {
+		
+		$token = $this->request->input('token', '');
+		$lang = $this->request->input('lang', 0);
+		$userId = $this->request->input('userId', 0);
+
+		$profile = $userProfile->getOneByUserId($userId);
+		if ($profile && $profile->isActivate)
+		{
+			return ['code' => 0, 'msg' => trans('user.request_success'), 'lang' => $lang, 'token' => $token, 'datetime' => date('Y-m-d H:i:s')];
+		}
+		
+		try {
+			event(new \App\Events\User\ActivateEvent());
+		} catch (\Exception $e) {
+			return ['code' => 111, 'msg' => trans('tool.activate_error'), 'lang' => $lang, 'token' => '', 'datetime' => date('Y-m-d H:i:s')];
+		}
+		
+		return ['code' => 0, 'msg' => trans('user.request_success'), 'lang' => $lang, 'token' => $token, 'datetime' => date('Y-m-d H:i:s')];
+
+	}
+
+	public function putPackage() {
+
+		$token = $this->request->input('token', '');
+		$lang = $this->request->input('lang', 0);
+		$userId = $this->request->input('userId', 0);
+		
+		try {
+			event(new \App\Events\User\PackageEvent());
+		} catch (\Exception $e) {
+			return ['code' => 111, 'msg' => trans('tool.package_error'), 'lang' => $lang, 'token' => '', 'datetime' => date('Y-m-d H:i:s')];
+		}
+		
 		return ['code' => 0, 'msg' => trans('user.request_success'), 'lang' => $lang, 'token' => $token, 'datetime' => date('Y-m-d H:i:s')];
 
 	}

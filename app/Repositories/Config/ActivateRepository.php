@@ -1,8 +1,8 @@
-<?php namespace App\Repositories\User;
+<?php namespace App\Repositories\Config;
 
 use Bosnadev\Repositories\Eloquent\Repository;
 
-class UserProfileRepository extends Repository 
+class ActivateRepository extends Repository 
 {
 
     /**
@@ -12,7 +12,7 @@ class UserProfileRepository extends Repository
      */
     public function model() {
 
-        return 'App\Models\User\UserProfile';
+        return 'App\Models\Config\Activate';
 
     }
 	
@@ -22,10 +22,10 @@ class UserProfileRepository extends Repository
 
 	}
 
-	public function getOneByUserId($userId) {
+	public function getOneByActivateNo($activateNo) {
 
 		return $this->model
-			        ->where('userId', $userId)
+			        ->where('activateNo', $activateNo)
 			        ->first();
 
 	}
@@ -33,6 +33,12 @@ class UserProfileRepository extends Repository
 	public function updateById($data, $id) {
 		
 		return $this->update($data, $id);
+
+	}
+
+	public function updateByActivateNo($data, $activateNo) {
+		
+		return $this->update($data, $activateNo, 'activateNo');
 
 	}
 

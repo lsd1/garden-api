@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 use App\Repositories\User\UserRepository as User;
+use App\Repositories\User\UserLogRepository as UserLog;
 use App\Repositories\User\UserTreeRepository as UserTree;
 use App\Repositories\User\UserCountRepository as UserCount;
 use App\Repositories\User\UserAttachRepository as UserAttach;
@@ -113,6 +114,31 @@ class ShowController extends Controller
 
 	}
 
+	public function userLogs(UserLog $userLog, UserAttach $userAttach) {
+		
+		$token = $this->request->input('token', '');
+		$lang = $this->request->input('lang', 0);
+		
+		$list = [];
+		$userLog->pushCriteria(new \App\Repositories\Criteria\User\UserLogListCriteria($this->request));
+		foreach ($userLog->all() as $row)
+		{
+			$user = $this->user->getOneById($row->joinUserId);
+			$avatar = $userAttach->getAvatarByUserId($user->id);
+
+			$list[] = [
+				'id' => $row->id,
+				'username' => $user->username,
+				'avatar' => $avatar,
+				'content' => trans($row->content),
+				'datetime' => $row->datetime
+			];
+		}
+		
+		return ['code' => 0, 'msg' => trans('user.request_success'), 'data' => ['userLogList' => $list], 'lang' => $lang, 'token' => $token, 'datetime' => date('Y-m-d H:i:s')];
+
+	}
+
 	public function pickList(UserTree $userTree, UserAttach $userAttach) {
 		
 		$token = $this->request->input('token', '');
@@ -128,7 +154,7 @@ class ShowController extends Controller
 			
 			$mature = strtotime($row->matureTime);
 			$isMature = $mature <= $now ? 1 : 0;
-			$countdown = $isMature ? ($mature - $now) : 0;
+			$countdown = $isMature ? 0 : ($mature - $now);
 			$isWater = 1;
 
 			$list[] = [

@@ -54,6 +54,10 @@ class UserListener
 				'salt' => $salt, 'datetime' => $datetime
 			]);
 
+			app(UserProfile::class)->create([
+				'userId' => $user->id	
+			]);
+
 			app(UserTree::class)->create([
 				'userId' => $user->id	
 			]);

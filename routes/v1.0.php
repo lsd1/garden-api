@@ -48,6 +48,9 @@ $router->group(['namespace' => 'V1', 'prefix' => 'v1.0'], function () use ($rout
 				// 积分日志
 				$router->get('/user/score_logs', 'ShowController@socreLogs');
 
+				// 积分日志
+				$router->get('/user/user_logs', 'ShowController@userLogs');
+
 				// 果园互动列表
 				$router->get('/user/pick_list', 'ShowController@pickList');
 
@@ -65,6 +68,12 @@ $router->group(['namespace' => 'V1', 'prefix' => 'v1.0'], function () use ($rout
 
 				// 使用道具
 				$router->post('/user/use_tool', 'ActionController@useTool');
+
+				// 使用激活码
+				$router->post('/user/put_activate', 'ActionController@putActivate');
+
+				// 使用礼包
+				$router->post('/user/put_package', 'ActionController@putPackage');
 				
 			});
 			

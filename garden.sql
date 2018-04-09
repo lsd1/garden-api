@@ -10,10 +10,28 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2018-04-08 18:40:33
+Date: 2018-04-09 18:02:08
 */
 
 SET FOREIGN_KEY_CHECKS=0;
+
+-- ----------------------------
+-- Table structure for gd_activate
+-- ----------------------------
+DROP TABLE IF EXISTS `gd_activate`;
+CREATE TABLE `gd_activate` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `activateNo` char(12) NOT NULL COMMENT '激活码',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '激活码状态 0 未使用 1 已使用',
+  `datetime` datetime NOT NULL COMMENT '激时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_activateNo` (`activateNo`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='激活码信息表';
+
+-- ----------------------------
+-- Records of gd_activate
+-- ----------------------------
+INSERT INTO `gd_activate` VALUES ('1', '111111111111', '1', '2018-04-09 17:57:05');
 
 -- ----------------------------
 -- Table structure for gd_config
@@ -50,6 +68,27 @@ INSERT INTO `gd_config` VALUES ('16', 'NightStart', '夜晚开始时间', '18');
 INSERT INTO `gd_config` VALUES ('17', 'NightEnd', '夜晚结束时间', '6');
 INSERT INTO `gd_config` VALUES ('18', 'RipeningRate', '催熟时间减少比例', '0.5');
 INSERT INTO `gd_config` VALUES ('19', 'AntiTheftTime', '防偷神奇防护时间', '259200');
+
+-- ----------------------------
+-- Table structure for gd_package
+-- ----------------------------
+DROP TABLE IF EXISTS `gd_package`;
+CREATE TABLE `gd_package` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `packageNo` char(12) NOT NULL COMMENT '礼包编码',
+  `level` tinyint(3) unsigned NOT NULL DEFAULT '1' COMMENT '礼包等级',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '礼包状态 0 未使用 1 已使用',
+  `datetime` datetime NOT NULL COMMENT '激活时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_packageNo` (`packageNo`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='礼包信息表';
+
+-- ----------------------------
+-- Records of gd_package
+-- ----------------------------
+INSERT INTO `gd_package` VALUES ('1', '111111111111', '1', '1', '2018-04-09 17:11:26');
+INSERT INTO `gd_package` VALUES ('2', '222222222222', '1', '0', '2018-04-09 17:11:33');
+INSERT INTO `gd_package` VALUES ('3', '333333333333', '1', '0', '2018-04-09 17:11:41');
 
 -- ----------------------------
 -- Table structure for gd_tool_cn
@@ -205,7 +244,7 @@ CREATE TABLE `gd_user_log` (
   `datetime` datetime NOT NULL COMMENT '添加时间',
   PRIMARY KEY (`id`),
   KEY `idx_userId` (`userId`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COMMENT='用户日志信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COMMENT='用户日志信息表';
 
 -- ----------------------------
 -- Records of gd_user_log
@@ -218,6 +257,29 @@ INSERT INTO `gd_user_log` VALUES ('6', '1', '1', '19', 'user.user_pick_fruit', '
 INSERT INTO `gd_user_log` VALUES ('7', '1', '1', '17', 'user.user_pick_fruit', '2018-04-08 14:14:45');
 INSERT INTO `gd_user_log` VALUES ('8', '1', '1', '0', 'tool.tool_anti_theft_used', '2018-04-08 16:44:00');
 INSERT INTO `gd_user_log` VALUES ('9', '1', '1', '0', 'tool.tool_repellent_used', '2018-04-08 17:01:51');
+INSERT INTO `gd_user_log` VALUES ('10', '1', '1', '0', 'tool.tool_ripener_used', '2018-04-09 11:32:04');
+INSERT INTO `gd_user_log` VALUES ('11', '1', '1', '0', 'tool.tool_ripener_used', '2018-04-09 11:32:54');
+INSERT INTO `gd_user_log` VALUES ('12', '1', '1', '0', 'tool.tool_fertilizer_used', '2018-04-09 12:03:03');
+
+-- ----------------------------
+-- Table structure for gd_user_package
+-- ----------------------------
+DROP TABLE IF EXISTS `gd_user_package`;
+CREATE TABLE `gd_user_package` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `userId` int(10) unsigned NOT NULL COMMENT '关联 uesr 表中的id',
+  `packageNo` char(12) NOT NULL COMMENT '礼包编码',
+  `level` tinyint(255) unsigned NOT NULL DEFAULT '1' COMMENT '礼包等级',
+  `datetime` datetime NOT NULL COMMENT '最新时间（激活时间）',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_packageNo` (`packageNo`) USING BTREE,
+  KEY `idx_level_datetime` (`level`,`datetime`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='用户对应礼包信息表';
+
+-- ----------------------------
+-- Records of gd_user_package
+-- ----------------------------
+INSERT INTO `gd_user_package` VALUES ('1', '1', '111111111111', '1', '2018-04-09 17:42:10');
 
 -- ----------------------------
 -- Table structure for gd_user_profile
@@ -232,12 +294,18 @@ CREATE TABLE `gd_user_profile` (
   `packageTime` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '套餐激活时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_userId` (`userId`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='用户附加信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COMMENT='用户附加信息表';
 
 -- ----------------------------
 -- Records of gd_user_profile
 -- ----------------------------
-INSERT INTO `gd_user_profile` VALUES ('1', '1', '1', '2018-04-08 13:38:55', '0', '0000-00-00 00:00:00');
+INSERT INTO `gd_user_profile` VALUES ('1', '1', '1', '2018-04-09 18:00:13', '1', '2018-04-09 17:42:10');
+INSERT INTO `gd_user_profile` VALUES ('2', '2', '0', '0000-00-00 00:00:00', '0', '0000-00-00 00:00:00');
+INSERT INTO `gd_user_profile` VALUES ('3', '3', '0', '0000-00-00 00:00:00', '0', '0000-00-00 00:00:00');
+INSERT INTO `gd_user_profile` VALUES ('4', '4', '0', '0000-00-00 00:00:00', '0', '0000-00-00 00:00:00');
+INSERT INTO `gd_user_profile` VALUES ('5', '5', '0', '0000-00-00 00:00:00', '0', '0000-00-00 00:00:00');
+INSERT INTO `gd_user_profile` VALUES ('6', '6', '0', '0000-00-00 00:00:00', '0', '0000-00-00 00:00:00');
+INSERT INTO `gd_user_profile` VALUES ('7', '7', '0', '0000-00-00 00:00:00', '0', '0000-00-00 00:00:00');
 
 -- ----------------------------
 -- Table structure for gd_user_score_log
@@ -343,8 +411,8 @@ CREATE TABLE `gd_user_tool_count` (
 -- ----------------------------
 -- Records of gd_user_tool_count
 -- ----------------------------
-INSERT INTO `gd_user_tool_count` VALUES ('1', '1', '1', '10');
-INSERT INTO `gd_user_tool_count` VALUES ('2', '1', '3', '2');
+INSERT INTO `gd_user_tool_count` VALUES ('1', '1', '1', '8');
+INSERT INTO `gd_user_tool_count` VALUES ('2', '1', '3', '1');
 INSERT INTO `gd_user_tool_count` VALUES ('3', '1', '4', '0');
 INSERT INTO `gd_user_tool_count` VALUES ('4', '1', '2', '2');
 INSERT INTO `gd_user_tool_count` VALUES ('5', '1', '5', '3');
@@ -365,13 +433,16 @@ CREATE TABLE `gd_user_tool_log` (
   `datetime` datetime NOT NULL COMMENT '添加时间',
   PRIMARY KEY (`id`),
   KEY `idx_userId_toolId` (`userId`,`toolId`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='用户道具日志信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='用户道具日志信息表';
 
 -- ----------------------------
 -- Records of gd_user_tool_log
 -- ----------------------------
 INSERT INTO `gd_user_tool_log` VALUES ('1', '1', '4', '0', '1', '1', '0', 'tool.tool_anti_theft_used', '2018-04-08 16:44:00');
 INSERT INTO `gd_user_tool_log` VALUES ('2', '1', '2', '0', '1', '3', '2', 'tool.tool_repellent_used', '2018-04-08 17:01:51');
+INSERT INTO `gd_user_tool_log` VALUES ('3', '1', '3', '0', '1', '2', '1', 'tool.tool_ripener_used', '2018-04-09 11:32:03');
+INSERT INTO `gd_user_tool_log` VALUES ('4', '1', '3', '0', '2', '3', '1', 'tool.tool_ripener_used', '2018-04-09 11:32:54');
+INSERT INTO `gd_user_tool_log` VALUES ('5', '1', '1', '0', '2', '10', '8', 'tool.tool_fertilizer_used', '2018-04-09 12:03:03');
 
 -- ----------------------------
 -- Table structure for gd_user_tree
@@ -417,9 +488,12 @@ CREATE TABLE `gd_user_tree_fruit` (
   PRIMARY KEY (`id`),
   KEY `idx_userId_isMature` (`userId`,`isMature`) USING BTREE,
   KEY `idx_isMature_matureTime` (`isMature`,`matureTime`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='果树果子信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='果树果子信息表';
 
 -- ----------------------------
 -- Records of gd_user_tree_fruit
 -- ----------------------------
+INSERT INTO `gd_user_tree_fruit` VALUES ('1', '1', '2018-04-09 10:32:32', '0', '2018-04-09 14:25:14', '20');
+INSERT INTO `gd_user_tree_fruit` VALUES ('2', '1', '2018-04-09 01:32:32', '0', '2018-04-09 13:17:44', '20');
+INSERT INTO `gd_user_tree_fruit` VALUES ('3', '1', '2018-04-09 12:03:03', '0', '2018-04-11 12:03:03', '40');
 SET FOREIGN_KEY_CHECKS=1;

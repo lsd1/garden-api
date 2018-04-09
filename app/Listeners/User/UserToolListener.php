@@ -6,10 +6,14 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 use App\Repositories\Config\ConfigRepository as Config;
+use App\Repositories\Config\PackageRepository as Package;
+use App\Repositories\Config\ActivateRepository as Activate;
 
 use App\Repositories\User\UserLogRepository as UserLog;
 use App\Repositories\User\UserTreeRepository as UserTree;
 use App\Repositories\User\UserToolLogRepository as UserToolLog;
+use App\Repositories\User\UserPackageRepository as UserPackage;
+use App\Repositories\User\UserProfileRepository as UserProfile;
 use App\Repositories\User\UserToolCountRepository as UserToolCount;
 use App\Repositories\User\UserTreeFruitRepository as UserTreeFruit;
 
@@ -31,6 +35,42 @@ class UserToolListener
 
 	public function onFert($event) {
 
+		$userId = $this->request->input('userId', 0);
+		$toolId = $this->request->input('toolId', 0);
+		$useNum = $this->request->input('useNum', 1);
+
+		$fert2Fruit = app(Config::class)->getContentByKey('Fert2Fruit', 20);
+		$fertGrowTime = app(Config::class)->getContentByKey('FertGrowTime', 86400);
+
+		$matureTime = date('Y-m-d H:i:s', strtotime('+' . ($fertGrowTime * $useNum) . ' seconds'));
+		$matureFruit = $fert2Fruit * $useNum;
+
+		$toolCount = app(UserToolCount::class)->getOneByUserIdToolId($userId, $toolId);
+
+		DB::beginTransaction();
+		try {
+			app(UserTreeFruit::class)->create([
+				'userId' => $userId, 'fertTime' => date('Y-m-d H:i:s'),
+				'matureTime' => $matureTime, 'matureFruit' => $matureFruit
+			]);
+
+			app(UserToolCount::class)->decrementTool($userId, $toolId, $useNum);
+			app(UserToolLog::class)->create([
+				'userId' => $userId, 'toolId' => $toolId, 'changeType' => 0, 'changeNum' => $useNum, 
+				'oldNum' => $toolCount->num, 'newNum' => ($toolCount->num - $useNum),
+				'content' => 'tool.tool_fertilizer_used',  'datetime' => date('Y-m-d H:i:s')
+			]);
+
+			app(UserLog::class)->create([
+				'userId' => $userId, 'joinUserId' => $userId, 'content' => 'tool.tool_fertilizer_used', 
+				'datetime' => date('Y-m-d H:i:s')
+			]);
+
+			DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            throw new Exception('使用失败！');
+        }
 	}
 
 	public function onWorm($event) {
@@ -77,9 +117,56 @@ class UserToolListener
 		$toolId = $this->request->input('toolId', 0);
 		$useNum = $this->request->input('useNum', 1);
 
-		$beMature = app(UserTreeFruit::class)->getBeMatureByUserId($toolId);
+		$ripeningRate = app(Config::class)->getContentByKey('RipeningRate', 0.5);
 
+		$beMature = app(UserTreeFruit::class)->getBeMatureByUserId($userId);
+		if (count($beMature) <= 0)
+		{
+			throw new Exception('你还没施肥！');
+		}
+		
+		$rate = 1;
+		for($i = 0; $i < $useNum; $i ++)
+		{
+			$rate = (1 - $ripeningRate) * $rate;
+		}
+		
+		$toolCount = app(UserToolCount::class)->getOneByUserIdToolId($userId, $toolId);
 
+		DB::beginTransaction();
+		try {
+			foreach ($beMature as $row) 
+			{
+				$dteStart = new \DateTime($row->matureTime);
+				$dteEnd   = new \DateTime(date('Y-m-d H:i:s'));
+				if ($dteStart->getTimestamp() > $dteEnd->getTimestamp())
+				{
+					$dteDiff  = $dteStart->diff($dteEnd);
+					$s = intval(($dteDiff->d * 86400 + $dteDiff->h * 3600 + $dteDiff->i * 60 + $dteDiff->s) * $rate);
+					$matureTime = $dteEnd->modify("+{$s} seconds")->format('Y-m-d H:i:s');
+
+					$row->matureTime = $matureTime;
+					$row->save();
+				}
+			}
+			
+			app(UserToolCount::class)->decrementTool($userId, $toolId, $useNum);
+			app(UserToolLog::class)->create([
+				'userId' => $userId, 'toolId' => $toolId, 'changeType' => 0, 'changeNum' => $useNum, 
+				'oldNum' => $toolCount->num, 'newNum' => ($toolCount->num - $useNum),
+				'content' => 'tool.tool_ripener_used',  'datetime' => date('Y-m-d H:i:s')
+			]);
+
+			app(UserLog::class)->create([
+				'userId' => $userId, 'joinUserId' => $userId, 'content' => 'tool.tool_ripener_used', 
+				'datetime' => date('Y-m-d H:i:s')
+			]);
+
+			DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            throw new Exception('使用失败！');
+        }
 	}
 
 	public function onAntiTheft($event) {
@@ -160,6 +247,109 @@ class UserToolListener
 
 	}
 
+	public function onBug($event) {
+		
+		$userId = $this->request->input('userId', 0);
+
+		// 检测是否需要生虫
+		$tree = app(UserTree::class)->getOneByUserId($userId);
+		if (strcmp($tree->wormyTime, '0000-00-00 00:00:00') != 0)
+		{
+			return;
+		}
+		
+		// 计算概率
+		$fertGrowWormyChance = app(Config::class)->getContentByKey('FertGrowWormyChance', 0.07);
+		$max = 1000;
+		$s = $fertGrowWormyChance * $max;
+		$e = $s + $s;
+		$max = $max < $e ? $e : $max;
+	
+		$m = mt_rand(1, $max);
+		if ($m < $s || $m >= $e)
+		{
+			return;
+		}
+	
+		DB::beginTransaction();
+		try {
+			app(UserTree::class)->updateByUserId(['wormyTime' => date('Y-m-d H:i:s')], $userId);
+
+			app(UserLog::class)->create([
+				'userId' => $userId, 'joinUserId' => $userId, 'content' => 'tool.tree_on_bug', 
+				'datetime' => date('Y-m-d H:i:s')
+			]);
+
+			DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+        }
+	}
+
+	public function onActivate($event) {
+	
+		$userId = $this->request->input('userId', 0);
+		$activateNo = $this->request->input('activateNo', '');
+		
+		// 检测激活码
+		$activate = app(Activate::class)->getOneByActivateNo($activateNo);
+		if (! $activate)
+		{
+			throw new Exception('激活码不存在！');
+		}
+		if ($activate->status)
+		{
+			throw new Exception('激活码已使用！');
+		}
+
+		DB::beginTransaction();
+		try {
+			app(UserProfile::class)->updateById(['isActivate' => 1, 'activateTime' => date('Y-m-d H:i:s')], $userId);
+
+			app(Activate::class)->updateById(['status' => 1], $activate->id);
+
+			DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+			throw new Exception('使用失败！');
+        }
+
+	}
+
+	public function onPackage($event) {
+		
+		$userId = $this->request->input('userId', 0);
+		$packageNo = $this->request->input('packageNo', '');
+		
+		// 检测礼包
+		$package = app(Package::class)->getOneByPackageNo($packageNo);
+		if (! $package)
+		{
+			throw new Exception('礼包不存在！');
+		}
+		if ($package->status)
+		{
+			throw new Exception('礼包已使用！');
+		}
+
+		DB::beginTransaction();
+		try {
+			app(UserProfile::class)->updateById(['isPackage' => 1, 'packageTime' => date('Y-m-d H:i:s')], $userId);
+
+			app(Package::class)->updateById(['status' => 1], $package->id);
+
+			app(UserPackage::class)->create([
+				'userId' => $userId, 'packageNo' => $package->packageNo, 'level' => $package->level, 
+				'datetime' => date('Y-m-d H:i:s')
+			]);
+
+			DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+			throw new Exception('使用失败！');
+        }
+
+	}
 	
     /**
      * @param $events
@@ -191,6 +381,21 @@ class UserToolListener
 		$events->listen(
             'App\Events\User\DrugEvent',
             'App\Listeners\user\UserToolListener@onDrug'
+        );
+
+		$events->listen(
+            'App\Events\User\BugEvent',
+            'App\Listeners\user\UserToolListener@onBug'
+        );
+
+		$events->listen(
+            'App\Events\User\ActivateEvent',
+            'App\Listeners\user\UserToolListener@onActivate'
+        );
+
+		$events->listen(
+            'App\Events\User\PackageEvent',
+            'App\Listeners\user\UserToolListener@onPackage'
         );
 
     }
