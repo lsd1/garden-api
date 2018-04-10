@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2018-04-09 18:02:08
+Date: 2018-04-10 18:23:45
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -238,6 +238,7 @@ DROP TABLE IF EXISTS `gd_user_log`;
 CREATE TABLE `gd_user_log` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `userId` int(10) unsigned NOT NULL COMMENT '关联 uesr 表中的id',
+  `curType` varchar(10) NOT NULL COMMENT '操作类型',
   `joinUserId` int(10) unsigned NOT NULL COMMENT '关联 uesr 表中的id',
   `joinFruit` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '关联果子数量',
   `content` varchar(50) NOT NULL COMMENT '描述',
@@ -249,17 +250,17 @@ CREATE TABLE `gd_user_log` (
 -- ----------------------------
 -- Records of gd_user_log
 -- ----------------------------
-INSERT INTO `gd_user_log` VALUES ('1', '4', '1', '0', 'user.user_water_tree', '2018-03-30 15:39:11');
-INSERT INTO `gd_user_log` VALUES ('2', '4', '1', '0', 'user.user_water_tree', '2018-03-30 16:04:26');
-INSERT INTO `gd_user_log` VALUES ('4', '2', '1', '1', 'user.user_steal_fruit', '2018-04-08 13:39:35');
-INSERT INTO `gd_user_log` VALUES ('5', '2', '1', '1', 'user.user_steal_fruit', '2018-04-08 13:49:15');
-INSERT INTO `gd_user_log` VALUES ('6', '1', '1', '19', 'user.user_pick_fruit', '2018-04-08 14:12:05');
-INSERT INTO `gd_user_log` VALUES ('7', '1', '1', '17', 'user.user_pick_fruit', '2018-04-08 14:14:45');
-INSERT INTO `gd_user_log` VALUES ('8', '1', '1', '0', 'tool.tool_anti_theft_used', '2018-04-08 16:44:00');
-INSERT INTO `gd_user_log` VALUES ('9', '1', '1', '0', 'tool.tool_repellent_used', '2018-04-08 17:01:51');
-INSERT INTO `gd_user_log` VALUES ('10', '1', '1', '0', 'tool.tool_ripener_used', '2018-04-09 11:32:04');
-INSERT INTO `gd_user_log` VALUES ('11', '1', '1', '0', 'tool.tool_ripener_used', '2018-04-09 11:32:54');
-INSERT INTO `gd_user_log` VALUES ('12', '1', '1', '0', 'tool.tool_fertilizer_used', '2018-04-09 12:03:03');
+INSERT INTO `gd_user_log` VALUES ('1', '4', 'water', '1', '0', 'user.user_water_tree', '2018-03-30 15:39:11');
+INSERT INTO `gd_user_log` VALUES ('2', '4', 'water', '1', '0', 'user.user_water_tree', '2018-03-30 16:04:26');
+INSERT INTO `gd_user_log` VALUES ('4', '2', 'steal', '1', '1', 'user.user_steal_fruit', '2018-04-08 13:39:35');
+INSERT INTO `gd_user_log` VALUES ('7', '2', 'steal', '1', '1', 'user.user_steal_fruit', '2018-04-08 13:49:15');
+INSERT INTO `gd_user_log` VALUES ('8', '1', 'pick', '1', '19', 'user.user_pick_fruit', '2018-04-08 14:12:05');
+INSERT INTO `gd_user_log` VALUES ('9', '1', 'pick', '1', '17', 'user.user_pick_fruit', '2018-04-08 14:14:45');
+INSERT INTO `gd_user_log` VALUES ('10', '1', 'anti-theft', '1', '0', 'tool.tool_anti_theft_used', '2018-04-08 16:44:00');
+INSERT INTO `gd_user_log` VALUES ('11', '1', 'anti-theft', '1', '0', 'tool.tool_repellent_used', '2018-04-08 17:01:51');
+INSERT INTO `gd_user_log` VALUES ('12', '1', 'ripener', '1', '0', 'tool.tool_ripener_used', '2018-04-09 11:32:04');
+INSERT INTO `gd_user_log` VALUES ('13', '1', 'ripener', '1', '0', 'tool.tool_ripener_used', '2018-04-09 11:32:54');
+INSERT INTO `gd_user_log` VALUES ('14', '1', 'fert', '1', '0', 'tool.tool_fertilizer_used', '2018-04-09 12:03:03');
 
 -- ----------------------------
 -- Table structure for gd_user_package
@@ -392,7 +393,7 @@ CREATE TABLE `gd_user_token` (
 -- ----------------------------
 -- Records of gd_user_token
 -- ----------------------------
-INSERT INTO `gd_user_token` VALUES ('1', '1', '1.0.0', '0', '4', '0', '4120c568e2242a0b2b5c3e9dc1061ae5', '2018-03-26 18:25:41');
+INSERT INTO `gd_user_token` VALUES ('1', '1', '1.0.0', '0', '4', '0', '67bcbc78ebcc9e8dd08966ed7bbeda96', '2018-04-10 11:20:18');
 INSERT INTO `gd_user_token` VALUES ('2', '6', '', '0', '0', '0', '59ae1f3af484cdb017cdb75150dcbe88', '2018-03-30 16:32:35');
 
 -- ----------------------------

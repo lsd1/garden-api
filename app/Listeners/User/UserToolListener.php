@@ -62,7 +62,7 @@ class UserToolListener
 			]);
 
 			app(UserLog::class)->create([
-				'userId' => $userId, 'joinUserId' => $userId, 'content' => 'tool.tool_fertilizer_used', 
+				'userId' => $userId, 'curType' => 'fert', 'joinUserId' => $userId, 'content' => 'tool.tool_fertilizer_used', 
 				'datetime' => date('Y-m-d H:i:s')
 			]);
 
@@ -100,7 +100,7 @@ class UserToolListener
 			]);
 
 			app(UserLog::class)->create([
-				'userId' => $userId, 'joinUserId' => $userId, 'content' => 'tool.tool_repellent_used', 
+				'userId' => $userId, 'curType' => 'repellent', 'joinUserId' => $userId, 'content' => 'tool.tool_repellent_used', 
 				'datetime' => date('Y-m-d H:i:s')
 			]);
 
@@ -158,7 +158,7 @@ class UserToolListener
 			]);
 
 			app(UserLog::class)->create([
-				'userId' => $userId, 'joinUserId' => $userId, 'content' => 'tool.tool_ripener_used', 
+				'userId' => $userId, 'curType' => 'ripener', 'joinUserId' => $userId, 'content' => 'tool.tool_ripener_used', 
 				'datetime' => date('Y-m-d H:i:s')
 			]);
 
@@ -196,7 +196,7 @@ class UserToolListener
 			]);
 
 			app(UserLog::class)->create([
-				'userId' => $userId, 'joinUserId' => $userId, 'content' => 'tool.tool_anti_theft_used', 
+				'userId' => $userId, 'curType' => 'anti-theft', 'joinUserId' => $userId, 'content' => 'tool.tool_anti_theft_used', 
 				'datetime' => date('Y-m-d H:i:s')
 			]);
 
@@ -235,7 +235,7 @@ class UserToolListener
 			]);
 
 			app(UserLog::class)->create([
-				'userId' => $userId, 'joinUserId' => $userId, 'content' => 'tool.tool_repellent_used', 
+				'userId' => $userId, 'curType' => 'repellent', 'joinUserId' => $userId, 'content' => 'tool.tool_repellent_used', 
 				'datetime' => date('Y-m-d H:i:s')
 			]);
 
@@ -276,7 +276,7 @@ class UserToolListener
 			app(UserTree::class)->updateByUserId(['wormyTime' => date('Y-m-d H:i:s')], $userId);
 
 			app(UserLog::class)->create([
-				'userId' => $userId, 'joinUserId' => $userId, 'content' => 'tool.tree_on_bug', 
+				'userId' => $userId, 'curType' => 'bug', 'joinUserId' => $userId, 'content' => 'tool.tree_on_bug', 
 				'datetime' => date('Y-m-d H:i:s')
 			]);
 

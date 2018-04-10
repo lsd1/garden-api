@@ -17,6 +17,7 @@ use App\Repositories\User\UserProfileRepository as UserProfile;
 use App\Repositories\User\UserDayCountRepository as UserDayCount;
 use App\Repositories\User\UserScoreLogRepository as UserScoreLog;
 use App\Repositories\User\UserScoreTakeRepository as UserScoreTake;
+use App\Repositories\User\UserTreeFruitRepository as UserTreeFruit;
 
 class UserListener
 {
@@ -205,7 +206,7 @@ class UserListener
 			app(UserTree::class)->updateByUserId(['waterTime' => date('Y-m-d H:i:s')], $toUserId);
 
 			app(UserLog::class)->create([
-				'userId' => $toUserId, 'joinUserId' => $userId, 'content' => 'user.user_water_tree', 
+				'userId' => $toUserId, 'curType' => 'water', 'joinUserId' => $userId, 'content' => 'user.user_water_tree', 
 				'datetime' => date('Y-m-d H:i:s')
 			]);
 
@@ -257,7 +258,7 @@ class UserListener
 			
 			// 计算可偷取量
 			$stealFruit = 0;
-			$profile =  app(UserProfile::class)->getOneById($userId);
+			$profile =  app(UserProfile::class)->getOneByUserId($userId);
 			if ($profile)
 			{
 				if ($profile->isPackage)
@@ -299,7 +300,7 @@ class UserListener
 				app(UserTree::class)->fruitSteal($toUserId, $stealFruit);
 
 				app(UserLog::class)->create([
-					'userId' => $toUserId, 'joinUserId' => $userId, 'joinFruit' => $stealFruit, 'content' => 'user.user_steal_fruit', 
+					'userId' => $toUserId, 'curType' => 'steal', 'joinUserId' => $userId, 'joinFruit' => $stealFruit, 'content' => 'user.user_steal_fruit', 
 					'datetime' => date('Y-m-d H:i:s')
 				]);
 
@@ -361,13 +362,19 @@ class UserListener
 
 			// 用户日统计数据
 			$dayCount = app(UserDayCount::class)->getOneByUserId($userId);
+			$treeFruit = app(UserTreeFruit::class)->getOneBeMatureByUserId($userId);
 			
 			DB::beginTransaction();
 			try {
-				app(UserTree::class)->fruitPick($userId, $tree->matureFruit);
+				if ($treeFruit)
+				{
+					app(UserTree::class)->fruitPick($userId, $tree->matureFruit, $treeFruit->matureTime);
+				} else {
+					app(UserTree::class)->fruitPick($userId, $tree->matureFruit);
+				}
 
 				app(UserLog::class)->create([
-					'userId' => $userId, 'joinUserId' => $userId, 'joinFruit' => $pickFruit, 'content' => 'user.user_pick_fruit', 
+					'userId' => $userId, 'curType' => 'pick', 'joinUserId' => $userId, 'joinFruit' => $pickFruit, 'content' => 'user.user_pick_fruit', 
 					'datetime' => date('Y-m-d H:i:s')
 				]);
 

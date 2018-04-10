@@ -31,7 +31,7 @@ class UserLog extends Model
      * @var array
      */
     protected $fillable = [
-        'userId', 'joinUserId', 'joinFruit', 'content', 'datetime'
+        'userId', 'curType', 'joinUserId', 'joinFruit', 'content', 'datetime'
     ];
 
 }

@@ -130,6 +130,8 @@ class ShowController extends Controller
 				'id' => $row->id,
 				'username' => $user->username,
 				'avatar' => $avatar,
+				'curType' => $row->curType,
+				'fruit' => $row->joinFruit,
 				'content' => trans($row->content),
 				'datetime' => $row->datetime
 			];
