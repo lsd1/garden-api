@@ -46,9 +46,9 @@ class UserTreeRepository extends Repository
 		
 	}
 	
-	public function fruitPick($userId, $fruit) {
+	public function fruitPick($userId, $fruit, $matureTime = '0000-00-00 00:00:00') {
 		
-		return $this->model->where('userId', $userId)->decrement('matureFruit', $fruit, ['matureTime' => '0000-00-00 00:00:00', 'stealFruit' => 0]);
+		return $this->model->where('userId', $userId)->decrement('matureFruit', $fruit, ['matureTime' => $matureTime, 'stealFruit' => 0]);
 
 	}
 

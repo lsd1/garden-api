@@ -30,5 +30,14 @@ class UserTreeFruitRepository extends Repository
 			        ->get();
 
 	}
+ 
+	public function getOneBeMatureByUserId($userId) {
+
+		return $this->model
+			        ->where('userId', $userId)
+			        ->where('isMature', 0)
+			        ->first();
+		
+	}
 
 }
