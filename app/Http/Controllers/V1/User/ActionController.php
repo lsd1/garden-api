@@ -37,17 +37,16 @@ class ActionController extends Controller
 		$lang = $this->request->input('lang', 0);
 		$username = $this->request->input('username', '');
 		$userId = $this->request->input('userId', 0);
-		$avatar = $this->request->file('avatar');
+		$avatar = $this->request->input('avatar', '');
 	
-		$validator = Validator::make(['avatar' => $avatar], ['avatar' => 'required|image']);
-		if ($validator->fails()) 
+		if (! preg_match('/^(data:\s*image\/(\w+);base64,)/', $avatar, $result))
 		{
 			return ['code' => 111, 'msg' => trans('user.user_avatar_must_picture'), 'lang' => $lang, 'token' => '', 'datetime' => date('Y-m-d H:i:s')];
 		}
 
 		try {
-			$avatarPath = 'user/avatars/' . $userId . '.' . $avatar->getClientOriginalExtension();
-			$this->request->merge(['avatarPath' => $avatarPath]);
+			$avatarPath = 'user/avatars/' . $userId . '.' . $result[2];
+			$this->request->merge(['avatarPath' => $avatarPath, 'avatar' => base64_decode(str_replace($result[1], '', $avatar))]); 
 			
 			event(new \App\Events\User\UploadAvatarEvent());
 		} catch (\Exception $e) {

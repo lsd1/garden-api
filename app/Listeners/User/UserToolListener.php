@@ -62,7 +62,7 @@ class UserToolListener
 			]);
 
 			app(UserLog::class)->create([
-				'userId' => $userId, 'joinUserId' => $userId, 'content' => 'tool.tool_fertilizer_used', 
+				'userId' => $userId, 'curType' => 'fert', 'joinUserId' => $userId, 'content' => 'tool.tool_fertilizer_used', 
 				'datetime' => date('Y-m-d H:i:s')
 			]);
 
@@ -100,7 +100,7 @@ class UserToolListener
 			]);
 
 			app(UserLog::class)->create([
-				'userId' => $userId, 'joinUserId' => $userId, 'content' => 'tool.tool_repellent_used', 
+				'userId' => $userId, 'curType' => 'repellent', 'joinUserId' => $userId, 'content' => 'tool.tool_repellent_used', 
 				'datetime' => date('Y-m-d H:i:s')
 			]);
 
@@ -131,10 +131,13 @@ class UserToolListener
 			$rate = (1 - $ripeningRate) * $rate;
 		}
 		
+		$tree = app(UserTree::class)->getOneByUserId($userId);
 		$toolCount = app(UserToolCount::class)->getOneByUserIdToolId($userId, $toolId);
 
 		DB::beginTransaction();
 		try {
+			$nmatureTime = new \DateTime($tree->matureTime);
+
 			foreach ($beMature as $row) 
 			{
 				$dteStart = new \DateTime($row->matureTime);
@@ -143,10 +146,15 @@ class UserToolListener
 				{
 					$dteDiff  = $dteStart->diff($dteEnd);
 					$s = intval(($dteDiff->d * 86400 + $dteDiff->h * 3600 + $dteDiff->i * 60 + $dteDiff->s) * $rate);
-					$matureTime = $dteEnd->modify("+{$s} seconds")->format('Y-m-d H:i:s');
+					$matureTime = $dteEnd->modify("+{$s} seconds");
 
-					$row->matureTime = $matureTime;
+					$row->matureTime = $matureTime->format('Y-m-d H:i:s');
 					$row->save();
+
+					if ($nmatureTime->getTimestamp() > $matureTime->getTimestamp())
+					{
+						$nmatureTime = $matureTime;
+					}
 				}
 			}
 			
@@ -158,9 +166,16 @@ class UserToolListener
 			]);
 
 			app(UserLog::class)->create([
-				'userId' => $userId, 'joinUserId' => $userId, 'content' => 'tool.tool_ripener_used', 
+				'userId' => $userId, 'curType' => 'ripener', 'joinUserId' => $userId, 'content' => 'tool.tool_ripener_used', 
 				'datetime' => date('Y-m-d H:i:s')
 			]);
+
+			$matureTime = $nmatureTime->format('Y-m-d H:i:s');
+			if (strcmp($tree->matureTime, $matureTime) != 0)
+			{
+				$tree->matureTime = $matureTime;
+				$tree->save();
+			}
 
 			DB::commit();
         } catch (Exception $e) {
@@ -196,7 +211,7 @@ class UserToolListener
 			]);
 
 			app(UserLog::class)->create([
-				'userId' => $userId, 'joinUserId' => $userId, 'content' => 'tool.tool_anti_theft_used', 
+				'userId' => $userId, 'curType' => 'anti-theft', 'joinUserId' => $userId, 'content' => 'tool.tool_anti_theft_used', 
 				'datetime' => date('Y-m-d H:i:s')
 			]);
 
@@ -235,7 +250,7 @@ class UserToolListener
 			]);
 
 			app(UserLog::class)->create([
-				'userId' => $userId, 'joinUserId' => $userId, 'content' => 'tool.tool_repellent_used', 
+				'userId' => $userId, 'curType' => 'drug', 'joinUserId' => $userId, 'content' => 'tool.tool_repellent_used', 
 				'datetime' => date('Y-m-d H:i:s')
 			]);
 
@@ -276,7 +291,7 @@ class UserToolListener
 			app(UserTree::class)->updateByUserId(['wormyTime' => date('Y-m-d H:i:s')], $userId);
 
 			app(UserLog::class)->create([
-				'userId' => $userId, 'joinUserId' => $userId, 'content' => 'tool.tree_on_bug', 
+				'userId' => $userId, 'curType' => 'bug', 'joinUserId' => $userId, 'content' => 'tool.tree_on_bug', 
 				'datetime' => date('Y-m-d H:i:s')
 			]);
 
