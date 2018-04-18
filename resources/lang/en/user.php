@@ -14,6 +14,8 @@ return [
     */
 
 	'request_success' => 'The request is successful!',
+
+	'user_activate_must' => 'Please activate the user first!',
 	
 	'username_exist' => 'The account has already existed!',
 	'username_no_exist' => 'The account does not exist!',
@@ -66,5 +68,7 @@ return [
 	'user_pick_fruit_faild' => 'The fruit of the tree has been picked out!',
 
 	'user_pick_fruit_success' => 'Plucking :fruit of the fruit!',
+
+	'user_day_steal_times' => 'The number of stealing is :times times today!'
 
 ];

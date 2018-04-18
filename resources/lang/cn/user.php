@@ -14,6 +14,8 @@ return [
     */
 
 	'request_success' => '请求成功！',
+
+	'user_activate_must' => '请先激活用户！',
 	
 	'username_exist' => '账户已存在！',
 	'username_no_exist' => '账户不存在！',
@@ -66,5 +68,7 @@ return [
 	'user_pick_fruit_faild' => '树上果子都被摘光了！',
 
 	'user_pick_fruit_success' => '摘取到果子 :fruit 个！',
+
+	'user_day_steal_times' => '今日偷摘次数以达到 :times 次！'
 
 ];

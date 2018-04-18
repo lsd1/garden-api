@@ -88,7 +88,10 @@ $app->routeMiddleware([
 	'auth.version' => App\Http\Middleware\AuthVersion::class,
 	'auth.user' => App\Http\Middleware\AuthUser::class,
 	'auth.sign' => App\Http\Middleware\AuthSign::class,
-	'auth.login' => App\Http\Middleware\AuthLogin::class
+	'auth.login' => App\Http\Middleware\AuthLogin::class,
+	'auth.activate' => App\Http\Middleware\AuthActivate::class,
+	'auth.daycount' => App\Http\Middleware\AuthDayCount::class,
+	'tree.antitheft' => App\Http\Middleware\AntiTheft::class
 ]);
 
 /*

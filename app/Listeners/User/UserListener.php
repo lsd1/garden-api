@@ -222,6 +222,38 @@ class UserListener
 		
 		$userId = $this->request->input('userId', 0);
 		$toUserId = $this->request->input('toUserId', 0);
+		$antiTheft = $this->request->input('antiTheft', 0);
+
+		if ($antiTheft == 1)
+		{
+			// 检查防护盾
+			$tree = app(UserTree::class)->getOneByUserId($toUserId);
+			if (strcmp($tree->antiTheftTime, '0000-00-00 00:00:00') != 0)
+			{
+				$now = new \DateTime();
+				$antiTheftTime = new \DateTime($tree->antiTheftTime);
+				if ($antiTheftTime->getTimestamp() > $now->getTimestamp())
+				{
+					DB::beginTransaction();
+					try {
+
+						app(UserLog::class)->create([
+							'userId' => $toUserId, 'curType' => 'steal', 'joinUserId' => $userId, 'joinFruit' => 0, 'content' => 'user.user_steal_fruit', 
+							'datetime' => date('Y-m-d H:i:s')
+						]);
+
+						app(UserDayCount::class)->fruitSteal($userId, 0);
+				
+						DB::commit();
+					} catch (Exception $e) {
+						DB::rollback();
+						throw new Exception('偷取失败！');
+					}		
+
+					return;
+				}
+			}
+		}
 
 		$key = env('CACHE_PREFIX', 'gd_') . 'steal_' . $toUserId;
 		$vue = $toUserId . '_' . $userId . '_' . mt_rand(11111, 99999);

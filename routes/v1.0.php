@@ -42,9 +42,6 @@ $router->group(['namespace' => 'V1', 'prefix' => 'v1.0'], function () use ($rout
 				// 修改头像
 				$router->post('/user/upload_avatar', 'ActionController@uploadAvatar');
 
-				// 提取积分
-				$router->post('/user/draw_score', 'ActionController@drawScore');
-
 				// 积分日志
 				$router->get('/user/score_logs', 'ShowController@socreLogs');
 
@@ -57,23 +54,30 @@ $router->group(['namespace' => 'V1', 'prefix' => 'v1.0'], function () use ($rout
 				// 果园信息
 				$router->get('/user/show_garden', 'ShowController@showGarden');
 
-				// 果园浇水
-				$router->post('/user/put_water', 'ActionController@putWater');
-
-				// 偷摘果子
-				$router->post('/user/put_steal', 'ActionController@putSteal');
-
-				// 摘取果子
-				$router->post('/user/put_pick', 'ActionController@putPick');
-
-				// 使用道具
-				$router->post('/user/use_tool', 'ActionController@useTool');
-
 				// 使用激活码
 				$router->post('/user/put_activate', 'ActionController@putActivate');
 
 				// 使用礼包
 				$router->post('/user/put_package', 'ActionController@putPackage');
+
+				$router->group(['middleware' => ['auth.activate', 'auth.daycount']], function () use ($router) {
+
+					// 果园浇水
+					$router->post('/user/put_water', 'ActionController@putWater');
+
+					// 使用道具
+					$router->post('/user/use_tool', 'ActionController@useTool');
+
+					// 偷摘果子
+					$router->post('/user/put_steal', ['middleware' => 'tree.antitheft', 'uses' => 'ActionController@putSteal']);
+
+					// 摘取果子
+					$router->post('/user/put_pick', 'ActionController@putPick');
+
+					// 提取积分
+					$router->post('/user/draw_score', 'ActionController@drawScore');
+
+				});
 				
 			});
 			
