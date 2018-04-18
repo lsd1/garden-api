@@ -93,10 +93,11 @@ class ShowController extends Controller
 
 	}
 
-	public function socreLogs(UserScoreLog $userScoreLog) {
+	public function socreLogs(UserCount $userCount, UserScoreLog $userScoreLog) {
 
 		$token = $this->request->input('token', '');
 		$lang = $this->request->input('lang', 0);
+		$userId = $this->request->input('userId', 0);
 		
 		$list = [];
 		$userScoreLog->pushCriteria(new \App\Repositories\Criteria\User\ScoreLogListCriteria($this->request));
@@ -110,7 +111,9 @@ class ShowController extends Controller
 			];
 		}
 
-		return ['code' => 0, 'msg' => trans('user.request_success'), 'data' => ['scoreLogList' => $list], 'lang' => $lang, 'token' => $token, 'datetime' => date('Y-m-d H:i:s')];
+		$count = $userCount->getOneByUserId($userId);
+
+		return ['code' => 0, 'msg' => trans('user.request_success'), 'data' => ['score' => $count->score, 'scoreLogList' => $list], 'lang' => $lang, 'token' => $token, 'datetime' => date('Y-m-d H:i:s')];
 
 	}
 
