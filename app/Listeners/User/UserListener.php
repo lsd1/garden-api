@@ -1,4 +1,4 @@
-<?php namespace App\Listeners\user;
+<?php namespace App\Listeners\User;
 
 use Exception, DB;
 use Illuminate\Http\Request;
@@ -62,6 +62,9 @@ class UserListener
 			app(UserTree::class)->create([
 				'userId' => $user->id	
 			]);
+
+			// 激活用户
+			app(UserProfile::class)->updateById(['isActivate' => 1, 'activateTime' => date('Y-m-d H:i:s')], $user->id);
 
 			DB::commit();
         } catch (Exception $e) {
@@ -138,19 +141,20 @@ class UserListener
 
 		$l = strripos($avatarPath, '/');
 		$path = substr($avatarPath, 0, $l);
-		$file = substr($avatarPath, $l + 1);
+		$file = $path . '/' . substr($avatarPath, $l + 1);
 
 		DB::beginTransaction();
 		try {
-			Storage::put($path . '/' . $file, $avatar);
+			Storage::put($file, $avatar);
 
 			if ($attach)
 			{
+				$attach->url = $file;
 				$attach->datetime = date('Y-m-d H:i:s');
 				$attach->save();
 			} else {
 				app(UserAttach::class)->create([
-					'userId' => $userId, 'curType' => 1, 'useType' => 1, 'url' => $avatarPath, 'datetime' => date('Y-m-d H:i:s')
+					'userId' => $userId, 'curType' => 1, 'useType' => 1, 'url' => $file, 'datetime' => date('Y-m-d H:i:s')
 				]);
 			}
 

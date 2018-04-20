@@ -10,6 +10,7 @@ use App\Repositories\User\UserLogRepository as UserLog;
 use App\Repositories\User\UserTreeRepository as UserTree;
 use App\Repositories\User\UserCountRepository as UserCount;
 use App\Repositories\User\UserAttachRepository as UserAttach;
+use App\Repositories\User\UserProfileRepository as UserProfile;
 use App\Repositories\User\UserScoreLogRepository as UserScoreLog;
 
 use App\Repositories\Config\ConfigRepository as Config;
@@ -34,7 +35,7 @@ class ShowController extends Controller
         
     }
 
-	public function showGarden(UserTree $userTree, Config $config) {
+	public function showGarden(UserTree $userTree, Config $config, UserAttach $userAttach) {
 		
 		$token = $this->request->input('token', '');
 		$lang = $this->request->input('lang', 0);
@@ -52,7 +53,9 @@ class ShowController extends Controller
 		$tree = $userTree->getOneByUserId($toUserId > 0 ? $toUserId : $userId);
 
 		$data = [];
-		
+
+		$data['avatar'] = $userAttach->getAvatarByUserId($toUserId > 0 ? $toUserId : $userId);
+
 		$data['isMature'] = 0;
 		if ($tree->matureTime != '0000-00-00 00:00:00')
 		{
@@ -93,7 +96,7 @@ class ShowController extends Controller
 
 	}
 
-	public function socreLogs(UserCount $userCount, UserScoreLog $userScoreLog) {
+	public function socreLogs(UserCount $userCount, UserProfile $userProfile, UserScoreLog $userScoreLog) {
 
 		$token = $this->request->input('token', '');
 		$lang = $this->request->input('lang', 0);
@@ -112,8 +115,9 @@ class ShowController extends Controller
 		}
 
 		$count = $userCount->getOneByUserId($userId);
+		$profile = $userProfile->getOneByUserId($userId);
 
-		return ['code' => 0, 'msg' => trans('user.request_success'), 'data' => ['score' => $count->score, 'scoreLogList' => $list], 'lang' => $lang, 'token' => $token, 'datetime' => date('Y-m-d H:i:s')];
+		return ['code' => 0, 'msg' => trans('user.request_success'), 'data' => ['score' => $count->score, 'activateTime' => $profile->activateTime, 'scoreLogList' => $list], 'lang' => $lang, 'token' => $token, 'datetime' => date('Y-m-d H:i:s')];
 
 	}
 

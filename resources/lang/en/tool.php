@@ -29,4 +29,6 @@ return [
 	'not_has_drug' => 'Fruit trees do not need insect pests!',
 	'not_has_ripener' => 'No need to fruit ripening!',
 
+	'package_2_tool' => 'package tool send',
+
 ];

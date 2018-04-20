@@ -242,11 +242,18 @@ class ActionController extends Controller
 		$token = $this->request->input('token', '');
 		$lang = $this->request->input('lang', 0);
 		$userId = $this->request->input('userId', 0);
+		$packageNo = $this->request->input('packageNo', '');
 		
 		try {
 			event(new \App\Events\User\PackageEvent());
 		} catch (\Exception $e) {
 			return ['code' => 111, 'msg' => trans('tool.package_error'), 'lang' => $lang, 'token' => '', 'datetime' => date('Y-m-d H:i:s')];
+		}
+		
+		try {
+			event(new \App\Events\User\Package2ToolEvent($packageNo));
+		} catch (\Exception $e) {
+
 		}
 		
 		return ['code' => 0, 'msg' => trans('user.request_success'), 'lang' => $lang, 'token' => $token, 'datetime' => date('Y-m-d H:i:s')];

@@ -12,7 +12,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         
-		\App\Console\Commands\TransferBlockSync::class,
+		\App\Console\Commands\PackageSendTool::class,
 
     ];
 

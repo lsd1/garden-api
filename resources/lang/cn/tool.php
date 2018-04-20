@@ -29,4 +29,6 @@ return [
 	'not_has_drug' => '果树并不需要除虫害！',
 	'not_has_ripener' => '没有果子需要催熟！',
 
+	'package_2_tool' => '礼包道具发放',
+
 ];

@@ -41,10 +41,19 @@ class UserToolCountRepository extends Repository
 
 	public function getOneByUserIdToolId($userId, $toolId) {
 		
-		return $this->model
+		$res = $this->model
 			        ->where('userId', $userId)
 			        ->where('toolId', $toolId)
 					->first();
+
+		if (! $res)
+		{
+			$this->create(['userId' => $userId, 'toolId' => $toolId, 'num' => 0]);
+
+			return $this->getOneByUserIdToolId($userId, $toolId);
+		}
+		
+		return $res;
 
 	}
 
@@ -54,6 +63,15 @@ class UserToolCountRepository extends Repository
 			        ->where('userId', $userId)
 			        ->where('toolId', $toolId)
 					->decrement('num', $num);
+
+	}
+	
+	public function incrementTool($userId, $toolId, $num) {
+		
+		return $this->model
+			        ->where('userId', $userId)
+			        ->where('toolId', $toolId)
+					->increment('num', $num);
 
 	}
 

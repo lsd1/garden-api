@@ -40,7 +40,7 @@ class UserAttachRepository extends Repository
 		             ->where('useType', 1)
 		             ->first();
 
-		return get_file_address($data ? $data->url : 'user/avatar/default.jpg');
+		return get_file_address($data ? $data->url : 'user/avatars/default.jpg');
 			         
 
 	}

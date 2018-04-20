@@ -1,4 +1,4 @@
-<?php namespace App\Listeners\user;
+<?php namespace App\Listeners\User;
 
 use Exception, DB;
 use Illuminate\Http\Request;
@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Repositories\Config\ConfigRepository as Config;
 use App\Repositories\Config\PackageRepository as Package;
 use App\Repositories\Config\ActivateRepository as Activate;
+use App\Repositories\Config\PackageToolRepository as PackageTool;
 
 use App\Repositories\User\UserLogRepository as UserLog;
 use App\Repositories\User\UserTreeRepository as UserTree;
@@ -365,6 +366,84 @@ class UserToolListener
         }
 
 	}
+
+	public function onPackage2Tool($event) {
+		
+		$packageNo = $event->getPackageNo();
+		$sendDateTime = $event->getSendDateTime();
+		
+		$userPackage = app(UserPackage::class)->getOneByPackageNo($packageNo);
+		
+		if (! $userPackage)
+		{
+			return;
+		}
+
+		if ($userPackage->sendEnd)
+		{
+			return;
+		}
+
+		$datetime = new \DateTime(substr($userPackage->datetime, 0, 10));
+		if (empty($sendDateTime))
+		{
+			$sendDateTime = $datetime;
+		} else {
+			$sendDateTime = new \DateTime($sendDateTime);
+		}
+	
+		$sendDay = $sendDateTime->format('Ymd');
+
+		if ($userPackage->sendDay >= $sendDay)
+		{
+			return;
+		}
+
+		$tools = app(PackageTool::class)->getListByLevel($userPackage->level);
+		$diff = $sendDateTime->diff($datetime);
+		$sendEnd = 1;
+
+		DB::beginTransaction();
+		try {
+
+			foreach ($tools as $tool)
+			{
+				$sendTimes = intval($diff->days / $tool->everyDays) + 1;
+
+				if ($tool->sendTimes < $sendTimes)
+				{
+					continue;
+				} else if ($tool->sendTimes > $sendTimes) {
+					$sendEnd = 0;
+				}
+				
+				$ndiff = $sendDateTime->diff(new \DateTime());
+				if (0 != $diff->days % $tool->everyDays)
+				{
+					continue;
+				}
+
+				$toolCount = app(UserToolCount::class)->getOneByUserIdToolId($userPackage->userId, $tool->toolId);
+				
+				app(UserToolCount::class)->incrementTool($userPackage->userId, $tool->toolId, $tool->sendNum);
+
+				app(UserToolLog::class)->create([
+					'userId' => $userPackage->userId, 'toolId' => $tool->toolId, 'changeType' => 1, 'changeNum' => $tool->sendNum, 
+					'oldNum' => $toolCount->num, 'newNum' => ($toolCount->num + $tool->sendNum), 'content' => 'tool.package_2_tool',
+					'datetime' => date('Y-m-d H:i:s')
+				]);
+			}
+
+			$userPackage->sendEnd = $sendEnd;
+			$userPackage->sendDay = $sendDay;
+			$userPackage->save();
+
+			DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+        }
+		
+	}
 	
     /**
      * @param $events
@@ -411,6 +490,11 @@ class UserToolListener
 		$events->listen(
             'App\Events\User\PackageEvent',
             'App\Listeners\user\UserToolListener@onPackage'
+        );
+
+		$events->listen(
+            'App\Events\User\Package2ToolEvent',
+            'App\Listeners\user\UserToolListener@onPackage2Tool'
         );
 
     }

@@ -1,15 +1,15 @@
-<?php namespace App\Models\User;
+<?php namespace App\Models\Config;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserAttach extends Model
+class PackageTool extends Model
 {
 	/**
 	 * 与模型关联的数据表
 	 *
 	 * @var string
 	 */
-	protected $table = 'user_attach';
+	protected $table = 'package_tool';
 
 	/**
 	 * 该模型的主键
@@ -24,14 +24,5 @@ class UserAttach extends Model
 	 * @var bool
 	 */
 	public $timestamps = false;
-
-	/**
-     * 该模型的可分配属性
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'userId', 'curType', 'useType', 'url', 'datetime'
-    ];
 
 }
