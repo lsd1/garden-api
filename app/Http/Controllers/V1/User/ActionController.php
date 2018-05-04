@@ -30,6 +30,23 @@ class ActionController extends Controller
 		$this->user = $user;
         
     }
+
+	public function editNickname() {
+		
+		$token = $this->request->input('token', '');
+		$lang = $this->request->input('lang', 0);
+		$username = $this->request->input('username', '');
+		$userId = $this->request->input('userId', 0);
+		$nickname = $this->request->input('nickname', '');
+		
+		if (! empty($nickname))
+		{
+			$this->user->updateById(['nickname' => $nickname], $userId);
+		}
+		
+		return ['code' => 0, 'msg' => trans('user.request_success'), 'lang' => $lang, 'token' => $token, 'datetime' => date('Y-m-d H:i:s')];
+
+	}
     
 	public function uploadAvatar() {
 		

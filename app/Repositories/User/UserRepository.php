@@ -28,4 +28,12 @@ class UserRepository extends Repository
 
 	}
 
+	public function updateById($data, $id) {
+		
+		return $this->model
+		            ->where('id', $id)
+		            ->update($data);
+
+	}
+
 }

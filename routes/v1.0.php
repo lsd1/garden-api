@@ -23,16 +23,15 @@ $router->group(['namespace' => 'V1', 'prefix' => 'v1.0'], function () use ($rout
 			// 检测注册用户名
 			$router->post('/register/check_username', 'RegisterController@checkUsername');
 
-			// 发送二维码
+			// 检测验证码
 			$router->post('/register/check_code', 'RegisterController@checkCode');
 
-			// 检测二维码
+			// 发送验证码
 			$router->post('/register/send_code', 'RegisterController@sendCode');
 				
 			// 登陆
 			$router->post('/login', 'LoginController@login');
 				
-		
 		});
 
 		$router->group(['middleware' => ['auth.user', 'auth.sign', 'auth.login']], function () use ($router) {
@@ -41,6 +40,9 @@ $router->group(['namespace' => 'V1', 'prefix' => 'v1.0'], function () use ($rout
 
 				// 登出
 				$router->post('/logout', 'LogoutController@logout');
+				
+				// 修改昵称
+				$router->post('/user/edit_nickname', 'ActionController@editNickname');
 
 				// 修改密码
 				$router->post('/user/edit_password', 'UserPwdController@edit');
