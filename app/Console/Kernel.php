@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         
 		\App\Console\Commands\PackageSendTool::class,
+		\App\Console\Commands\Fruit2Mature::class,
 
     ];
 

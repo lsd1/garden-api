@@ -24,5 +24,13 @@ class Package extends Model
 	 * @var bool
 	 */
 	public $timestamps = false;
-
+	
+	/**
+     * 该模型的可分配属性
+     *
+     * @var array
+     */
+    protected $fillable = [
+		'packageNo', 'level', 'batch', 'status', 'datetime'
+    ];
 }

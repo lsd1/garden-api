@@ -22,6 +22,12 @@ $router->group(['namespace' => 'V1', 'prefix' => 'v1.0'], function () use ($rout
 
 			// 检测注册用户名
 			$router->post('/register/check_username', 'RegisterController@checkUsername');
+
+			// 发送二维码
+			$router->post('/register/check_code', 'RegisterController@checkCode');
+
+			// 检测二维码
+			$router->post('/register/send_code', 'RegisterController@sendCode');
 				
 			// 登陆
 			$router->post('/login', 'LoginController@login');
@@ -89,6 +95,13 @@ $router->group(['namespace' => 'V1', 'prefix' => 'v1.0'], function () use ($rout
 				// 查看道具提示
 				$router->get('/tool/show_tips', 'ShowController@tips');
 				
+			});
+
+			$router->group(['namespace' => 'Share'], function () use ($router) {
+
+				// 查看道具
+				$router->get('/share/show', 'ShowController@index');
+
 			});
 		
 		});

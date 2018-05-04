@@ -24,3 +24,23 @@ if (! function_exists('get_file_address')) {
 		return $path ? (env('APP_IMG_ADDRESS', '') . $path) : '';
 	}
 }
+
+if (! function_exists('create_code')) {
+	/**
+     * Create random num.
+     *
+     * @param  int  $length
+     * @return string
+     */
+	function create_code($length = 4) {
+		$nums = '0123456789';
+		$code = '';
+
+		for ($i = 0; $i < $length; $i++) 
+		{
+			$code .= $nums[mt_rand(0, strlen($nums) - 1)];
+		}
+
+		return $code;
+	}
+}

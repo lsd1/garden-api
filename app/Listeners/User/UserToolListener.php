@@ -23,16 +23,16 @@ class UserToolListener
 	
 	private $request;
 
-    /**
-     * 创建监听器
-     *
-     * 构造函数
-     */
-    public function __construct(Request $request) {
+	/**
+	 * 创建监听器
+	 *
+	 * 构造函数
+	 */
+	public function __construct(Request $request) {
 
-        $this->request = $request;
+		$this->request = $request;
 
-    }
+	}
 
 	public function onFert($event) {
 
@@ -45,7 +45,8 @@ class UserToolListener
 
 		$matureTime = date('Y-m-d H:i:s', strtotime('+' . ($fertGrowTime * $useNum) . ' seconds'));
 		$matureFruit = $fert2Fruit * $useNum;
-
+		
+		$tree = app(UserTree::class)->getOneByUserId($userId);
 		$toolCount = app(UserToolCount::class)->getOneByUserIdToolId($userId, $toolId);
 
 		DB::beginTransaction();
@@ -67,11 +68,17 @@ class UserToolListener
 				'datetime' => date('Y-m-d H:i:s')
 			]);
 
+			if (strcmp($tree->matureTime, '0000-00-00 00:00:00') == 0)
+			{
+				$tree->matureTime = $matureTime;
+				$tree->save();
+			}
+
 			DB::commit();
-        } catch (Exception $e) {
-            DB::rollback();
-            throw new Exception('使用失败！');
-        }
+		} catch (Exception $e) {
+			DB::rollback();
+			throw new Exception('使用失败！');
+		}
 	}
 
 	public function onWorm($event) {
@@ -106,10 +113,10 @@ class UserToolListener
 			]);
 
 			DB::commit();
-        } catch (Exception $e) {
-            DB::rollback();
-            throw new Exception('使用失败！');
-        }
+		} catch (Exception $e) {
+			DB::rollback();
+			throw new Exception('使用失败！');
+		}
 	}
 
 	public function onRipening($event) {
@@ -179,10 +186,10 @@ class UserToolListener
 			}
 
 			DB::commit();
-        } catch (Exception $e) {
-            DB::rollback();
-            throw new Exception('使用失败！');
-        }
+		} catch (Exception $e) {
+			DB::rollback();
+			throw new Exception('使用失败！');
+		}
 	}
 
 	public function onAntiTheft($event) {
@@ -217,10 +224,10 @@ class UserToolListener
 			]);
 
 			DB::commit();
-        } catch (Exception $e) {
-            DB::rollback();
-            throw new Exception('使用失败！');
-        }
+		} catch (Exception $e) {
+			DB::rollback();
+			throw new Exception('使用失败！');
+		}
 		
 	}
 
@@ -256,10 +263,10 @@ class UserToolListener
 			]);
 
 			DB::commit();
-        } catch (Exception $e) {
-            DB::rollback();
-            throw new Exception('使用失败！');
-        }
+		} catch (Exception $e) {
+			DB::rollback();
+			throw new Exception('使用失败！');
+		}
 
 	}
 
@@ -297,9 +304,9 @@ class UserToolListener
 			]);
 
 			DB::commit();
-        } catch (Exception $e) {
-            DB::rollback();
-        }
+		} catch (Exception $e) {
+			DB::rollback();
+		}
 	}
 
 	public function onActivate($event) {
@@ -325,10 +332,10 @@ class UserToolListener
 			app(Activate::class)->updateById(['status' => 1], $activate->id);
 
 			DB::commit();
-        } catch (Exception $e) {
-            DB::rollback();
+		} catch (Exception $e) {
+			DB::rollback();
 			throw new Exception('使用失败！');
-        }
+		}
 
 	}
 
@@ -360,10 +367,10 @@ class UserToolListener
 			]);
 
 			DB::commit();
-        } catch (Exception $e) {
-            DB::rollback();
+		} catch (Exception $e) {
+			DB::rollback();
 			throw new Exception('使用失败！');
-        }
+		}
 
 	}
 
@@ -439,64 +446,64 @@ class UserToolListener
 			$userPackage->save();
 
 			DB::commit();
-        } catch (Exception $e) {
-            DB::rollback();
-        }
+		} catch (Exception $e) {
+			DB::rollback();
+		}
 		
 	}
 	
-    /**
-     * @param $events
-     *
-     * 为订阅者注册监听器
-     */
-    public function subscribe($events) {
-
-        $events->listen(
-            'App\Events\User\FertEvent',
-            'App\Listeners\user\UserToolListener@onFert'
-        );
+	/**
+	 * @param $events
+	 *
+	 * 为订阅者注册监听器
+	 */
+	public function subscribe($events) {
 
 		$events->listen(
-            'App\Events\User\WormEvent',
-            'App\Listeners\user\UserToolListener@onWorm'
-        );
+			'App\Events\User\FertEvent',
+			'App\Listeners\user\UserToolListener@onFert'
+		);
 
 		$events->listen(
-            'App\Events\User\RipeningEvent',
-            'App\Listeners\user\UserToolListener@onRipening'
-        );
+			'App\Events\User\WormEvent',
+			'App\Listeners\user\UserToolListener@onWorm'
+		);
 
 		$events->listen(
-            'App\Events\User\AntiTheftEvent',
-            'App\Listeners\user\UserToolListener@onAntiTheft'
-        );
+			'App\Events\User\RipeningEvent',
+			'App\Listeners\user\UserToolListener@onRipening'
+		);
+
+		$events->listen(
+			'App\Events\User\AntiTheftEvent',
+			'App\Listeners\user\UserToolListener@onAntiTheft'
+		);
 		
 		$events->listen(
-            'App\Events\User\DrugEvent',
-            'App\Listeners\user\UserToolListener@onDrug'
-        );
+			'App\Events\User\DrugEvent',
+			'App\Listeners\user\UserToolListener@onDrug'
+		);
 
 		$events->listen(
-            'App\Events\User\BugEvent',
-            'App\Listeners\user\UserToolListener@onBug'
-        );
+			'App\Events\User\BugEvent',
+			'App\Listeners\user\UserToolListener@onBug'
+		);
 
 		$events->listen(
-            'App\Events\User\ActivateEvent',
-            'App\Listeners\user\UserToolListener@onActivate'
-        );
+			'App\Events\User\ActivateEvent',
+			'App\Listeners\user\UserToolListener@onActivate'
+		);
 
 		$events->listen(
-            'App\Events\User\PackageEvent',
-            'App\Listeners\user\UserToolListener@onPackage'
-        );
+			'App\Events\User\PackageEvent',
+			'App\Listeners\user\UserToolListener@onPackage'
+		);
 
 		$events->listen(
-            'App\Events\User\Package2ToolEvent',
-            'App\Listeners\user\UserToolListener@onPackage2Tool'
-        );
+			'App\Events\User\Package2ToolEvent',
+			'App\Listeners\user\UserToolListener@onPackage2Tool'
+		);
 
-    }
+	}
 
 }

@@ -40,4 +40,14 @@ class UserTreeFruitRepository extends Repository
 		
 	}
 
+	public function getBeMatureBySeconds($seconds = 60) {
+		
+		return $this->model
+			        ->where('isMature', 0)
+			        ->where('matureTime', '<=', date('Y-m-d H:i:s', strtotime("+{$seconds} seconds")))
+			        ->orderBy('matureTime', 'asc')
+			        ->get();
+
+	}
+
 }

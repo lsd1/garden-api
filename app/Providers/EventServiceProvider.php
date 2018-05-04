@@ -21,6 +21,7 @@ class EventServiceProvider extends ServiceProvider
 
 		'App\Listeners\User\UserListener',
 		'App\Listeners\User\UserToolListener',
+		'App\Listeners\Sms\SmsListener',
 
 	];
 

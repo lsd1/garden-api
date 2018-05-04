@@ -62,5 +62,50 @@ class RegisterController extends Controller
 		}
 
 	}
+	
+	public function sendCode() {
+		
+		$lang = $this->request->input('lang', 0);
+		$username = $this->request->input('username', '');
+		
+		$account = $this->user->getOneByUsername($username);
+
+		if ($account)
+		{
+			return ['code' => 111, 'msg' => trans('user.username_exist'), 'lang' => $lang, 'token' => '', 'datetime' => date('Y-m-d H:i:s')];
+		}
+		
+		try {
+			event(new \App\Events\Sms\SendCodeEvent($username, create_code(4), 1));
+		} catch (\Exception $e) {
+
+		}
+
+		return ['code' => 0, 'msg' => trans('user.request_success'), 'lang' => $lang, 'token' => '', 'datetime' => date('Y-m-d H:i:s')];
+
+	}
+
+	public function checkCode() {
+		
+		$lang = $this->request->input('lang', 0);
+		$username = $this->request->input('username', '');
+		$smscode = $this->request->input('smscode', '');
+		
+		$account = $this->user->getOneByUsername($username);
+
+		if ($account)
+		{
+			return ['code' => 111, 'msg' => trans('user.username_exist'), 'lang' => $lang, 'token' => '', 'datetime' => date('Y-m-d H:i:s')];
+		}
+
+		try {
+			event(new \App\Events\Sms\CheckCodeEvent($username, $smscode, 1));
+		} catch (\Exception $e) {
+			return ['code' => 111, 'msg' => trans('sms.sms_code_faild'), 'lang' => $lang, 'token' => '', 'datetime' => date('Y-m-d H:i:s')];
+		}
+
+		return ['code' => 0, 'msg' => trans('user.request_success'), 'lang' => $lang, 'token' => '', 'datetime' => date('Y-m-d H:i:s')];
+
+	}
 
 }

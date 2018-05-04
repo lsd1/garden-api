@@ -57,10 +57,12 @@ class ShowController extends Controller
 		$data['avatar'] = $userAttach->getAvatarByUserId($toUserId > 0 ? $toUserId : $userId);
 
 		$data['isMature'] = 0;
+		$data['countdown'] = 0;
 		if ($tree->matureTime != '0000-00-00 00:00:00')
 		{
 			$mature = strtotime($tree->matureTime);
 			$data['isMature'] = $mature <= $now ? 1 : 0;
+			$data['countdown'] = $data['isMature'] ? 0 : ($mature - $now);
 		}
 
 		$activeWaterMinTime =  $config->getContentByKey('ActiveWaterMinTime', 14400);
@@ -136,6 +138,7 @@ class ShowController extends Controller
 			$list[] = [
 				'id' => $row->id,
 				'username' => $user->username,
+				'nickname' => $user->nickname,
 				'avatar' => $avatar,
 				'curType' => $row->curType,
 				'fruit' => $row->joinFruit,
@@ -169,6 +172,7 @@ class ShowController extends Controller
 			$list[] = [
 				'id' => $row->id,
 				'username' => $user->username,
+				'nickname' => $user->nickname,
 				'avatar' => $avatar,
 				'isMature' => $isMature,
 				'countdown' => $countdown,

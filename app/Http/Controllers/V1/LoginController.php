@@ -63,7 +63,7 @@ class LoginController extends Controller
 		$profile =  $this->userProfile->getOneByUserId($user->id);
 
 		$userInfo = [
-			'id' => $user->id, 'username' => $username, 'avatar' => $avatar, 'isActivate' => $profile->isActivate, 'isPackage' => $profile->isPackage
+			'id' => $user->id, 'username' => $username, 'nickname' => $user->nickname, 'avatar' => $avatar, 'isActivate' => $profile->isActivate, 'isPackage' => $profile->isPackage
 		];
 		
 		return ['code' => 0, 'msg' => trans('user.login_success'), 'data' => ['userInfo' => $userInfo], 'lang' => $lang, 'token' => $token, 'datetime' => date('Y-m-d H:i:s')];

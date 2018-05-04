@@ -14,10 +14,13 @@ use App\Repositories\User\UserTokenRepository as UserToken;
 use App\Repositories\User\UserCountRepository as UserCount;
 use App\Repositories\User\UserAttachRepository as UserAttach;
 use App\Repositories\User\UserProfileRepository as UserProfile;
+use App\Repositories\User\UserPackageRepository as UserPackage;
 use App\Repositories\User\UserDayCountRepository as UserDayCount;
 use App\Repositories\User\UserScoreLogRepository as UserScoreLog;
 use App\Repositories\User\UserScoreTakeRepository as UserScoreTake;
 use App\Repositories\User\UserTreeFruitRepository as UserTreeFruit;
+
+use App\Repositories\Config\PackageRepository as Package;
 
 class UserListener
 {
@@ -44,14 +47,20 @@ class UserListener
 	public function onRegister($event) {
 		
 		$username = $this->request->input('username', '');
+		$nickname = $this->request->input('nickname', $username);
 		$password = $this->request->input('password', '');
+		$inviter = $this->request->input('inviter', 0);
 		$salt = str_random(6);
 		$datetime = date('Y-m-d H:i:s');
+		
+		$r = str_random(10);
+		$packageNo1 = 'R1' . $r;
+		$packageNo2 = 'R2' . $r;
 
 		DB::beginTransaction();
 		try {
 			$user = $this->user->create([
-				'username' => $username, 'password' => md5($password . $salt), 
+				'username' => $username, 'nickname' => $nickname, 'password' => md5($password . $salt), 
 				'salt' => $salt, 'datetime' => $datetime
 			]);
 
@@ -66,11 +75,36 @@ class UserListener
 			// 激活用户
 			app(UserProfile::class)->updateById(['isActivate' => 1, 'activateTime' => date('Y-m-d H:i:s')], $user->id);
 
+			// 激活码
+			app(Package::class)->create([
+				'packageNo' => $packageNo1, 'level' => 98, 'batch' => '注册', 'status' => 1, 'datetime' => date('Y-m-d H:i:s')
+			]);
+			app(UserPackage::class)->create([
+				'userId' => $user->id, 'packageNo' => $packageNo1, 'level' => 98, 'datetime' => date('Y-m-d H:i:s')
+			]);
+
+			if ($inviter > 0)
+			{
+				app(Package::class)->create([
+					'packageNo' => $packageNo2, 'level' => 99, 'batch' => '分享', 'status' => 1, 'datetime' => date('Y-m-d H:i:s')
+				]);
+				app(UserPackage::class)->create([
+					'userId' => $inviter, 'packageNo' => $packageNo2, 'level' => 99, 'datetime' => date('Y-m-d H:i:s')
+				]);
+			}
+
 			DB::commit();
         } catch (Exception $e) {
             DB::rollback();
             throw new Exception('创建失败！');
         }
+
+		try {
+			event(new \App\Events\User\Package2ToolEvent($packageNo1));
+			event(new \App\Events\User\Package2ToolEvent($packageNo2));
+		} catch (\Exception $e) {
+
+		}
 
 	}
 
@@ -275,7 +309,7 @@ class UserListener
 			}
 		} while (! $do);
 		
-		if ($do == Cache::get($key))
+		if ($do == $vue)
 		{
 			$fruitMaxStealRate = app(Config::class)->getContentByKey('FruitMaxStealRate', 0.1);
 			$activateStealMinNum = app(Config::class)->getContentByKey('ActivateStealMinNum', 1);
@@ -381,7 +415,7 @@ class UserListener
 			}
 		} while (! $do);
 		
-		if ($do == Cache::get($key))
+		if ($do == $vue)
 		{
 			// 可摘取量检查
 			$tree = app(UserTree::class)->getOneByUserId($userId);
