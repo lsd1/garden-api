@@ -48,12 +48,15 @@ class ShowController extends Controller
 		{
 			$user = $this->user->getOneByUsername($toUsername);
 			$toUserId = $user ? $user->id : 0;
+		} else {
+			$user = $this->user->getOneById($userId);
 		}
 		
 		$tree = $userTree->getOneByUserId($toUserId > 0 ? $toUserId : $userId);
 
 		$data = [];
-
+		
+		$data['nickname'] = $user->nickname;
 		$data['avatar'] = $userAttach->getAvatarByUserId($toUserId > 0 ? $toUserId : $userId);
 
 		$data['isMature'] = 0;
