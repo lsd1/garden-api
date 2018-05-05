@@ -32,7 +32,7 @@ class ShowController extends Controller
 		$username = $this->request->input('username', '');
 		$userId = $this->request->input('userId', 0);
 
-		return ['code' => 0, 'msg' => trans('user.request_success'), 'data' => ['shareUrl' => env('WEB_ADDRESS', 'http://www.ebcgame.com') . "?action=login&id={$userId}"], 'lang' => $lang, 'token' => $token, 'datetime' => date('Y-m-d H:i:s')];
+		return ['code' => 0, 'msg' => trans('user.request_success'), 'data' => ['shareUrl' => env('WEB_ADDRESS', 'http://www.ebcgame.com') . "?inviter={$userId}"], 'lang' => $lang, 'token' => $token, 'datetime' => date('Y-m-d H:i:s')];
 
 	}
 

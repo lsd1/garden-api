@@ -13,6 +13,6 @@ return [
     |
     */
 
-	'sms_code_faild' => '短信二维码错误！',
+	'sms_code_faild' => '短信验证码错误！',
 
 ];

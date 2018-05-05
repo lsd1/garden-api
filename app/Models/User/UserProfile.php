@@ -31,7 +31,7 @@ class UserProfile extends Model
      * @var array
      */
     protected $fillable = [
-        'userId', 'isActivate', 'activateTime', 'isPackage', 'packageTime'
+        'userId', 'inviter', 'isActivate', 'activateTime', 'isPackage', 'packageTime'
     ];
 
 }

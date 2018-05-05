@@ -65,7 +65,8 @@ class UserListener
 			]);
 
 			app(UserProfile::class)->create([
-				'userId' => $user->id	
+				'userId' => $user->id,
+				'inviter' => $inviter
 			]);
 
 			app(UserTree::class)->create([
