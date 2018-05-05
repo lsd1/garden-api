@@ -58,6 +58,13 @@ class ShowController extends Controller
 		
 		$data['nickname'] = $user->nickname;
 		$data['avatar'] = $userAttach->getAvatarByUserId($toUserId > 0 ? $toUserId : $userId);
+		
+		$data['fangtou'] = 0;
+		if ($tree->antiTheftTime != '0000-00-00 00:00:00')
+		{
+			$fangtou = strtotime($tree->antiTheftTime);
+			$data['fangtou'] = $fangtou > $now ? ($fangtou - $now) : 0;
+		}
 
 		$data['isMature'] = 0;
 		$data['countdown'] = 0;
